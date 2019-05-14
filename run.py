@@ -24,7 +24,8 @@ class User(db.Model):
     username=db.Column(db.Text)
     password=db.Column(db.Text)
 
-    def __init__(self,username, password):
+    def __init__(self, username, password):
+        # self.id=id
         self.username=username
         self.password=password
 
@@ -61,13 +62,19 @@ def users():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify(new_user)
+    return jsonify({username:"registered"})
 
 @app.route('/users', methods=['GET'])
 def get_users():
     all_users = User.query.all()
     result = user_schema.dump(all_users)
     return jsonify(result.data)
+
+@app.route('/user/<id>', methods=['GET'])
+def get_specific_user(id):
+    user = User.query.get(id)
+    return user_schema.jsonify(user)
+
 
 
 
