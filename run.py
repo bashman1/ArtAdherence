@@ -32,22 +32,21 @@ class User(db.Model):
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('username', 'password')
+        fields = ('username', 'password','id')
 
 
 
 user_schema = UserSchema()
 user_schema = UserSchema(many=True)
 
-    # def __repr__(self):
-    #     if
 
-
-
-
+# The root page route
 @app.route('/')
 def index():
     return jsonify({"message":"Hello Threre ArtAdherence"})
+
+
+# Register user route
 
 @app.route('/users', methods=['POST'])
 def users():
@@ -62,7 +61,10 @@ def users():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({username:"registered"})
+    return jsonify({username: "registered"})  #
+
+
+# Get all users route
 
 @app.route('/users', methods=['GET'])
 def get_users():
@@ -70,13 +72,37 @@ def get_users():
     result = user_schema.dump(all_users)
     return jsonify(result.data)
 
-@app.route('/user/<id>', methods=['GET'])
+# Get specific user route
+
+@app.route('/users/<id>', methods=['GET'])
 def get_specific_user(id):
     user = User.query.get(id)
-    return user_schema.jsonify(user)
+    return user_schema.jsonify({user})
+
+# Updating a specific user route
+
+@app.route('/users/<id>', methods=['PUT'])
+def  update_specific_user(id):
+    user = User.query.get(id)
+    username=request.json['username']
+    password = request.json['password']
+
+    user.username=username
+    user.password=password
+
+    db.session.commit()
+    return user_schema.jsonify({user})
 
 
+# Deleting a specific user route
 
+@app.route('/users/<id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.get(id)
+    db.session.delete(user)
+    db.session.commit()
+    if user>0:
+        return user_schema.jsonify({user})
 
 
 
